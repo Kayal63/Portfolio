@@ -3,6 +3,8 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("Script working");
+
 
     // 1. Navigation Active State
     const currentLocation = location.href;
@@ -47,11 +49,45 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(el);
     });
 
-    // 5. Add Certificate Management
-    const addCard = document.getElementById('add-certificate-card');
+    // 5. Add Certificate Management (with Authentication)
+    const addCard = document.getElementById('certificate-section');
     const fileInput = document.getElementById('cert-upload');
 
     if (addCard && fileInput) {
+        // Authentication System
+        const ADMIN_PASSWORD = 'kayal2026'; // Change this to your secure password
+
+        // Check if admin is authenticated
+        function isAuthenticated() {
+            return sessionStorage.getItem('portfolio-admin') === 'true';
+        }
+
+        // Check URL parameter for admin access
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('admin') === ADMIN_PASSWORD) {
+            sessionStorage.setItem('portfolio-admin', 'true');
+            // Remove password from URL for security
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Keyboard shortcut: Ctrl + Alt + K to prompt for password
+        document.addEventListener("keydown", function (e) {
+            if (e.ctrlKey && e.altKey && (e.key === "k" || e.key === "K")) {
+                let password = prompt("Enter admin password:");
+                if (password === ADMIN_PASSWORD) {
+                    addCard.style.display = "flex";
+                    sessionStorage.setItem("portfolio-admin", "true");
+                    alert('Admin access granted!');
+                } else if (password !== null) {
+                    alert('Incorrect password');
+                }
+            }
+        });
+
+        // Show add card only if authenticated
+        if (isAuthenticated()) {
+            addCard.style.display = 'flex';
+        }
         const certGrid = addCard.closest('.grid-2') || addCard.parentElement;
 
         // Load saved certificates from localStorage
